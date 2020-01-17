@@ -1720,7 +1720,8 @@ send_signed_request() { # Sends a request to the ACME server, signed with your p
       responseHeaders=$(cat "$CURL_HEADER")
       if [[ "$needbase64" && ${response##*()} != "{"* ]]; then
         # response is in base64 too, decode
-        response=$(echo ${response} | fold -w64 | openssl base64 -d)
+        # response=$(printf '%s' "${response}" | openssl base64 -d)
+        response=$(printf '%s' "${response}" | base64 -d)
       fi
 
       debug responseHeaders "$responseHeaders"
