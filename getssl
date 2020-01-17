@@ -1720,9 +1720,8 @@ send_signed_request() { # Sends a request to the ACME server, signed with your p
 
       responseHeaders=$(cat "$CURL_HEADER")
       if [[ "$needbase64" && ${response##*()} != "{"* ]]; then
-        # response is in base64 too, decode
-        # response=$(printf '%s' "${response}" | openssl base64 -d)
-        response=$(printf '%s' "${response}" | base64 -d)
+        # response is in base64 too, decode ignoring invalid input errors (FinalizeLink is missing a trailing return)
+        response=$(echo "${response}=" | base64 -d 2>/dev/null)
       fi
 
       debug responseHeaders "$responseHeaders"
@@ -2492,7 +2491,7 @@ if [[ -n "$DOMAIN_CHAIN_LOCATION" ]]; then
   copy_file_to_location "full chain" "$TEMP_DIR/${DOMAIN}_chain.pem"  "$to_location"
   if [[ "$DUAL_RSA_ECDSA" == "true" ]]; then
     cat "${CERT_FILE%.*}.ec.crt" "${CA_CERT%.*}.ec.crt" > "$TEMP_DIR/${DOMAIN}_chain.pem.ec"
-    copy_file_to_location "full chain" "$TEMP_DIR/${DOMAIN}_chain.pem.ec"  "${to_location}.ec"
+    copy_file_to_location "full chain" "$TEMP_DIR/${DOMAIN}_chain.pem.ec"  "${to_location%.*}.ec.${to_location##*.}"
   fi
 fi
 # if DOMAIN_KEY_CERT_LOCATION is not blank, then create and copy file.
@@ -2506,7 +2505,7 @@ if [[ -n "$DOMAIN_KEY_CERT_LOCATION" ]]; then
   copy_file_to_location "private key and domain cert pem" "$TEMP_DIR/${DOMAIN}_K_C.pem"  "$to_location"
   if [[ "$DUAL_RSA_ECDSA" == "true" ]]; then
   cat "$DOMAIN_DIR/${DOMAIN}.ec.key" "${CERT_FILE%.*}.ec.crt" > "$TEMP_DIR/${DOMAIN}_K_C.pem.ec"
-  copy_file_to_location "private ec key and domain cert pem" "$TEMP_DIR/${DOMAIN}_K_C.pem.ec"  "${to_location}.ec"
+  copy_file_to_location "private ec key and domain cert pem" "$TEMP_DIR/${DOMAIN}_K_C.pem.ec"  "${to_location%.*}.ec.${to_location##*.}"
   fi
 fi
 # if DOMAIN_PEM_LOCATION is not blank, then create and copy file.
@@ -2520,7 +2519,7 @@ if [[ -n "$DOMAIN_PEM_LOCATION" ]]; then
   copy_file_to_location "full key, cert and chain pem" "$TEMP_DIR/${DOMAIN}.pem"  "$to_location"
   if [[ "$DUAL_RSA_ECDSA" == "true" ]]; then
     cat "$DOMAIN_DIR/${DOMAIN}.ec.key" "${CERT_FILE%.*}.ec.crt" "${CA_CERT%.*}.ec.crt" > "$TEMP_DIR/${DOMAIN}.pem.ec"
-    copy_file_to_location "full ec key, cert and chain pem" "$TEMP_DIR/${DOMAIN}.pem.ec"  "${to_location}.ec"
+    copy_file_to_location "full ec key, cert and chain pem" "$TEMP_DIR/${DOMAIN}.pem.ec"  "${to_location%.*}.ec.${to_location##*.}"
   fi
 fi
 # end of copying certs.
