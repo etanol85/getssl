@@ -2,6 +2,10 @@
 
 if [ "$GETSSL_HOST" = "alpine.getssl.test" ]; then
     killall -HUP nginx >&3-
+<<<<<<< HEAD
+=======
+    sleep 5
+>>>>>>> 886b456ae338a7bfa800ea27d697e68ce39ed6f7
 else
     service nginx restart >&3-
 fi

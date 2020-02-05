@@ -45,6 +45,7 @@ server {
 	server_name _;
     ssl_certificate /etc/nginx/pki/server.crt;
     ssl_certificate_key /etc/nginx/pki/private/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
 
 	location / {
 		# First attempt to serve request as file, then
